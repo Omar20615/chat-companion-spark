@@ -74,8 +74,10 @@ export class ChatService {
         buffer = lines.pop() || '';
 
         for (const line of lines) {
+          console.log('Received line:', line);
           if (line.startsWith('data: ')) {
             const data = line.slice(6);
+            console.log('SSE data:', data);
             if (data === '[DONE]') {
               onComplete();
               return;
@@ -83,17 +85,20 @@ export class ChatService {
             
             try {
               const parsed = JSON.parse(data);
+              console.log('Parsed JSON:', parsed);
               if (parsed.content) {
                 onChunk(parsed.content);
               }
             } catch (e) {
               // If it's not JSON, treat it as plain text
+              console.log('Non-JSON data:', data);
               if (data.trim()) {
                 onChunk(data);
               }
             }
           } else if (line.trim() && !line.startsWith(':')) {
             // Handle non-SSE formatted responses
+            console.log('Non-SSE line:', line);
             onChunk(line);
           }
         }
